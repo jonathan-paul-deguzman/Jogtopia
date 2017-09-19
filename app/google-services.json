@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "537610608227",
+    "firebase_url": "https://jogtopia.firebaseio.com",
+    "project_id": "jogtopia",
+    "storage_bucket": "jogtopia.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537610608227:android:9c3e81db7d203283",
+        "android_client_info": {
+          "package_name": "com.jpdeguzman.jogtopia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537610608227-g71o1cp6mh3r26mk9h2fgpt5qirhiu9d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jpdeguzman.jogtopia",
+            "certificate_hash": "bbd96b0d359d2b13a26a4c0b27810643f824b04d"
+          }
+        },
+        {
+          "client_id": "537610608227-1reisua28ujh2ff5o0nsfkuhtm2iqdrl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDA65-EUvkzSWfG-yy8iqpoIMb-EaDWmro"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537610608227-1reisua28ujh2ff5o0nsfkuhtm2iqdrl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
