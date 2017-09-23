@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -25,7 +26,7 @@ import butterknife.OnClick;
  * Created by jonathan.deguzman on 9/17/17.
  */
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends BaseActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -37,53 +38,96 @@ public class LoginActivity extends Activity {
 
     private FirebaseAuth mAuth;
 
+    private FirebaseAuth.AuthStateListener mAuthListener;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
         mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                if (currentUser != null) {
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
+                    Intent intentToMainScreen = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intentToMainScreen);
+                } else {
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUi(currentUser);
+        // Check if user is signed in (non-null) and update UI accordingly.
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if (currentUser != null) {
+//            Intent intentToMainScreen = new Intent(LoginActivity.this, MainActivity.class);
+//            startActivity(intentToMainScreen);
+//        }
     }
 
-    @OnClick({R.id.login_button, R.id.login_switch_to_register})
+    @OnClick({R.id.login_button, R.id.register_link})
     public void onClick(View view) {
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.login_button:
                 signIn(mLoginEmail.getText().toString(), mLoginPassword.getText().toString());
                 break;
-            case R.id.login_switch_to_register:
-                Intent intentToRegister = new Intent(this, RegisterActivity.class);
+            case R.id.register_link:
+                Intent intentToRegister = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intentToRegister);
                 break;
         }
     }
 
-    private void signIn(String email, String password) {
+    public void signIn(String email, String password) {
+        if (!isValidForm()) return;
+        showProgressDialog();
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUi(user);
                         } else {
+                            // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
+                        hideProgressDialog();
                     }
                 });
     }
 
-    private void updateUi(FirebaseUser user) {
+    private boolean isValidForm() {
+        boolean isEmailValid = checkEmailAddress();
+        boolean isPasswordValid = checkPassword();
+        return isEmailValid && isPasswordValid;
+    }
 
+    private boolean checkEmailAddress() {
+        return checkForEmptyField(mLoginEmail);
+    }
+
+    private boolean checkPassword() {
+        return checkForEmptyField(mLoginPassword);
+    }
+
+    private boolean checkForEmptyField(EditText editText) {
+        String field = editText.getText().toString();
+        if (TextUtils.isEmpty(field)) {
+            editText.setError("Required");
+            return false;
+        } else {
+            editText.setError(null);
+            return true;
+        }
     }
 }
