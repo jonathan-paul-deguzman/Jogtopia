@@ -1,6 +1,5 @@
 package com.jpdeguzman.jogtopia.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -36,7 +35,7 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.login_password)
     EditText mLoginPassword;
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mFirebaseAuth;
 
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -45,17 +44,23 @@ public class LoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        mAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null) {
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + currentUser.getUid());
-                    Intent intentToMainScreen = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intentToMainScreen);
+                    Toast.makeText(
+                            getApplicationContext(),
+                            R.string.user_signed_in + currentUser.getDisplayName(),
+                            Toast.LENGTH_SHORT)
+                            .show();
                 } else {
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                    Toast.makeText(
+                            getApplicationContext(),
+                            R.string.user_signed_out + currentUser.getDisplayName(),
+                            Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
         };
@@ -65,11 +70,11 @@ public class LoginActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if (currentUser != null) {
-//            Intent intentToMainScreen = new Intent(LoginActivity.this, MainActivity.class);
-//            startActivity(intentToMainScreen);
-//        }
+        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            Intent intentToMainScreen = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intentToMainScreen);
+        }
     }
 
     @OnClick({R.id.login_button, R.id.register_link})
@@ -79,7 +84,7 @@ public class LoginActivity extends BaseActivity {
                 signIn(mLoginEmail.getText().toString(), mLoginPassword.getText().toString());
                 break;
             case R.id.register_link:
-                Intent intentToRegister = new Intent(LoginActivity.this, RegisterActivity.class);
+                Intent intentToRegister = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivity(intentToRegister);
                 break;
         }
@@ -88,13 +93,15 @@ public class LoginActivity extends BaseActivity {
     public void signIn(String email, String password) {
         if (!isValidForm()) return;
         showProgressDialog();
-        mAuth.signInWithEmailAndPassword(email, password)
+        mFirebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
+                            Intent intentToMainScreen = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intentToMainScreen);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());

@@ -46,9 +46,7 @@ public class RegisterActivity extends BaseActivity {
 
     private DatabaseReference mDatabase;
 
-    private FirebaseAuth mAuth;
-
-    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseAuth mFirebaseAuth;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,16 +54,7 @@ public class RegisterActivity extends BaseActivity {
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-                if (currentUser != null) {
-                    Log.d(TAG, "onAuthStateChanged:account_registered:" + currentUser.getUid());
-                }
-            }
-        };
+        mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
     @OnClick({R.id.register_button, R.id.login_link})
@@ -84,14 +73,14 @@ public class RegisterActivity extends BaseActivity {
     public void createAccount(String email, String password) {
         if (!isValidForm()) return;
         showProgressDialog();
-        mAuth.createUserWithEmailAndPassword(email, password)
+        mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-                            onAuthSuccess(mAuth.getCurrentUser());
+                            onAuthSuccess(mFirebaseAuth.getCurrentUser());
                             Toast.makeText(RegisterActivity.this,
                                     "Account created. Try logging in.", Toast.LENGTH_SHORT).show();
                             Intent intentToLogin = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -108,7 +97,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void onAuthSuccess(FirebaseUser user) {
-        String username = mRegisterFirstName.getText().toString() + " " + mRegisterFirstName.getText().toString();
+        String username = mRegisterFirstName.getText().toString() + " " + mRegisterLastName.getText().toString();
         writeNewUser(user.getUid(), username, user.getEmail());
     }
 
