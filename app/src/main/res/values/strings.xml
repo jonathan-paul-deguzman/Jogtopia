@@ -4,5 +4,6 @@
     <string name="loading_message">Loading...</string>
     <string name="user_signed_in">Welcome, </string>
     <string name="user_signed_out">Goodbye, </string>
-    <string name="title_activity_find_jog">Find Jogs In Your Area</string>
+    <string name="title_activity_create_jog">Find Jogs In Your Area</string>
+    <string name="location_permissions_denied">Please grant permissions to use the jog location services</string>
 </resources>

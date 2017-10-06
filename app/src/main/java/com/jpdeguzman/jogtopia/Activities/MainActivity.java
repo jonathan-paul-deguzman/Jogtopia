@@ -15,12 +15,17 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+/**
+ *  MainActivity serves the purpose of allowing the user to choose between the options provided.
+ *  At this current state, there are 2: Create Jog and Find Jog. Upon clicking their selection,
+ *  they will either be sent to {@link CreateJogActivity} or {@link FindJogActivity}.
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    @BindView(R.id.main_list_view)
-    ListView mMainListView;
+    @BindView(R.id.main_list_view) ListView mMainListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 switch (position) {
                     case 0:
+                        Intent intentToCreateJog = new Intent(MainActivity.this, CreateJogActivity.class);
+                        startActivity(intentToCreateJog);
                         break;
                     case 1:
-                        Intent intentToFindJog = new Intent(getApplicationContext(), FindJogActivity.class);
+                        Intent intentToFindJog = new Intent(MainActivity.this, FindJogActivity.class);
                         startActivity(intentToFindJog);
                         break;
                 }

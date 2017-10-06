@@ -25,27 +25,22 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
- * Created by jonathan.deguzman on 9/17/17.
+ *  RegisterActivity serves the purpose of allowing users to create a Jogtopia account by providing
+ *  their first name, last name, email, and password. If the account was successfully authenticated
+ *  on Firebase, the user will be sent to {@link LoginActivity} and the user's information will be
+ *  saved to the database. Otherwise, a failed authorization will be shown.
  */
 
 public class RegisterActivity extends BaseActivity {
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
 
-    @BindView(R.id.register_first_name)
-    EditText mRegisterFirstName;
-
-    @BindView(R.id.register_last_name)
-    EditText mRegisterLastName;
-
-    @BindView(R.id.register_email)
-    EditText mRegisterEmail;
-
-    @BindView(R.id.register_password)
-    EditText mRegisterPassword;
+    @BindView(R.id.register_first_name) EditText mRegisterFirstName;
+    @BindView(R.id.register_last_name) EditText mRegisterLastName;
+    @BindView(R.id.register_email) EditText mRegisterEmail;
+    @BindView(R.id.register_password) EditText mRegisterPassword;
 
     private DatabaseReference mDatabase;
-
     private FirebaseAuth mFirebaseAuth;
 
     @Override
@@ -64,14 +59,16 @@ public class RegisterActivity extends BaseActivity {
                 createAccount(mRegisterEmail.getText().toString(), mRegisterPassword.getText().toString());
                 break;
             case R.id.login_link:
-                Intent intentToLogin= new Intent(this, LoginActivity.class);
+                Intent intentToLogin= new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intentToLogin);
                 break;
         }
     }
 
     public void createAccount(String email, String password) {
-        if (!isValidForm()) return;
+        if (!isValidForm()) {
+            return;
+        }
         showProgressDialog();
         mFirebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -88,7 +85,7 @@ public class RegisterActivity extends BaseActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this,
+                            Toast.makeText(getApplicationContext(),
                                     "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                         hideProgressDialog();
