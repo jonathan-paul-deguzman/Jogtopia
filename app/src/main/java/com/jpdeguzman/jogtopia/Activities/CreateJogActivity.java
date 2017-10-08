@@ -2,18 +2,25 @@ package com.jpdeguzman.jogtopia.Activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,6 +43,7 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
 
     private static final String TAG = CreateJogActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private static final int REQUEST_PLACE_PICKER = 2;
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap mGoogleMap;
@@ -45,10 +53,17 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_jog);
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        FloatingActionButton searchForPlace = this.findViewById(R.id.map_find_place);
+        searchForPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadPlacePicker();
+            }
+        });
     }
 
     @Override
@@ -56,7 +71,7 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
         super.onStart();
         if (!isLocationPermissionGranted()) {
             requestForLocationPermission();
-        } 
+        }
     }
 
     @Override
@@ -78,6 +93,17 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         getLastLocation();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PLACE_PICKER) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(this, data);
+                placeMarkerOnMap(place.getLatLng());
+            }
+        }
     }
 
     @Override
@@ -133,5 +159,15 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
     private void placeMarkerOnMap(LatLng location) {
         MarkerOptions newMarker = new MarkerOptions().position(location);
         mGoogleMap.addMarker(newMarker);
+    }
+
+    private void loadPlacePicker() {
+        PlacePicker.IntentBuilder placePicker = new PlacePicker.IntentBuilder();
+        try {
+            // If this works, we expect to receive the selected place during onActivityResult
+            startActivityForResult(placePicker.build(CreateJogActivity.this), REQUEST_PLACE_PICKER);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
     }
 }
