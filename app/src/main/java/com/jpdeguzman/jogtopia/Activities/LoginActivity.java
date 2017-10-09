@@ -49,7 +49,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in (non-null) and start next activity accordingly.
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
         if (currentUser != null) {
             Log.d(TAG, "onStart:userIsAlreadySignedIn:" + currentUser.getEmail());

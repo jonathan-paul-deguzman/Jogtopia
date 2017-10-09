@@ -53,6 +53,7 @@ public class CreateJogActivity extends FragmentActivity implements OnMapReadyCal
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap mGoogleMap;
     private Location mLastLocation;
+    private LatLng mMarkerPosition;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,16 +83,6 @@ public class CreateJogActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     protected void onStop() {
         super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -142,6 +133,7 @@ public class CreateJogActivity extends FragmentActivity implements OnMapReadyCal
         Log.d(TAG, "getLastLocation:permissionStatus:" + isLocationPermissionGranted());
         if (isLocationPermissionGranted()) {
             mGoogleMap.setMyLocationEnabled(true);
+            mGoogleMap.setOnMarkerClickListener(this);
             mFusedLocationProviderClient.getLastLocation()
                     .addOnCompleteListener(this, new OnCompleteListener<Location>() {
                         @Override
@@ -164,6 +156,8 @@ public class CreateJogActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        Log.d(TAG, "onMarkerClick:markerIsClicked");
+        setMarkerPosition(marker.getPosition());
         DialogFragment timePicker = new TimePickerFragment();
         timePicker.show(getFragmentManager(), "timePicker");
         return false;
@@ -182,5 +176,13 @@ public class CreateJogActivity extends FragmentActivity implements OnMapReadyCal
         } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
+    }
+
+    public LatLng getMarkerPosition() {
+        return mMarkerPosition;
+    }
+
+    public void setMarkerPosition(LatLng markerPosition) {
+        mMarkerPosition = markerPosition;
     }
 }
