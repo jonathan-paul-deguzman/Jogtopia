@@ -2,6 +2,7 @@ package com.jpdeguzman.jogtopia.Activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -26,9 +27,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.jpdeguzman.jogtopia.Fragments.TimePickerFragment;
 import com.jpdeguzman.jogtopia.R;
 
 /**
@@ -39,11 +42,13 @@ import com.jpdeguzman.jogtopia.R;
  *  If the permission is not granted, the user will not be notified that the map is unavailable.
  */
 
-public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class CreateJogActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = CreateJogActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private static final int REQUEST_PLACE_PICKER = 2;
+    private static final int DEFAULT_ZOOM_VALUE = 15;
 
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap mGoogleMap;
@@ -122,14 +127,14 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    private Boolean isLocationPermissionGranted() {
-        return ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
     private void requestForLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
+    }
+
+    private Boolean isLocationPermissionGranted() {
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @SuppressLint("MissingPermission")
@@ -147,13 +152,21 @@ public class CreateJogActivity extends AppCompatActivity implements OnMapReadyCa
                                 LatLng location = new LatLng(mLastLocation.getLatitude(),
                                         mLastLocation.getLongitude());
                                 placeMarkerOnMap(location);
-                                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 13));
+                                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,
+                                        DEFAULT_ZOOM_VALUE));
                             } else {
                                 Log.d(TAG, "getLastLocation:exception:", task.getException());
                             }
                         }
                     });
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        DialogFragment timePicker = new TimePickerFragment();
+        timePicker.show(getFragmentManager(), "timePicker");
+        return false;
     }
 
     private void placeMarkerOnMap(LatLng location) {
